@@ -147,10 +147,7 @@ async fn revert_rolls_back_audit_log() {
     .await
     .expect("Failed to count audit logs");
 
-    assert_eq!(
-        audit_count, 0,
-        "No audit log should be inserted on revert"
-    );
+    assert_eq!(audit_count, 0, "No audit log should be inserted on revert");
 }
 
 /// Verify that no notification is created for the user when the token transfer
@@ -164,12 +161,11 @@ async fn revert_creates_no_notification() {
     let user_id = setup_user_with_kyc(&ctx.pool).await;
     let token = generate_user_token(user_id);
 
-    let before: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM notifications WHERE user_id = $1")
-            .bind(user_id)
-            .fetch_one(&ctx.pool)
-            .await
-            .expect("Failed to count notifications before request");
+    let before: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM notifications WHERE user_id = $1")
+        .bind(user_id)
+        .fetch_one(&ctx.pool)
+        .await
+        .expect("Failed to count notifications before request");
 
     let response = ctx
         .app
@@ -183,17 +179,13 @@ async fn revert_creates_no_notification() {
 
     assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
 
-    let after: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM notifications WHERE user_id = $1")
-            .bind(user_id)
-            .fetch_one(&ctx.pool)
-            .await
-            .expect("Failed to count notifications after request");
+    let after: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM notifications WHERE user_id = $1")
+        .bind(user_id)
+        .fetch_one(&ctx.pool)
+        .await
+        .expect("Failed to count notifications after request");
 
-    assert_eq!(
-        after, before,
-        "No notification should be created on revert"
-    );
+    assert_eq!(after, before, "No notification should be created on revert");
 }
 
 /// Verify that no plan_log entry is created when the token transfer reverts.
@@ -289,11 +281,7 @@ async fn revert_with_header_value_1_triggers_rollback() {
 
     let response = ctx
         .app
-        .oneshot(build_create_plan_request(
-            &token,
-            &plan_request_body(),
-            "1",
-        ))
+        .oneshot(build_create_plan_request(&token, &plan_request_body(), "1"))
         .await
         .expect("request failed");
 
@@ -328,12 +316,11 @@ async fn atomic_rollback_leaves_zero_side_effects() {
     let token = generate_user_token(user_id);
 
     // Snapshot counts before the request
-    let plans_before: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM plans WHERE user_id = $1")
-            .bind(user_id)
-            .fetch_one(&ctx.pool)
-            .await
-            .expect("count plans before");
+    let plans_before: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM plans WHERE user_id = $1")
+        .bind(user_id)
+        .fetch_one(&ctx.pool)
+        .await
+        .expect("count plans before");
 
     let audit_before: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM action_logs WHERE user_id = $1 AND action = 'plan_created'",
@@ -372,12 +359,11 @@ async fn atomic_rollback_leaves_zero_side_effects() {
     assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
 
     // Verify every table is unchanged
-    let plans_after: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM plans WHERE user_id = $1")
-            .bind(user_id)
-            .fetch_one(&ctx.pool)
-            .await
-            .expect("count plans after");
+    let plans_after: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM plans WHERE user_id = $1")
+        .bind(user_id)
+        .fetch_one(&ctx.pool)
+        .await
+        .expect("count plans after");
 
     let audit_after: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM action_logs WHERE user_id = $1 AND action = 'plan_created'",
@@ -438,11 +424,7 @@ async fn plan_creation_succeeds_without_revert_header() {
         .body(Body::from(plan_request_body().to_string()))
         .expect("Failed to build request");
 
-    let response = ctx
-        .app
-        .oneshot(request)
-        .await
-        .expect("request failed");
+    let response = ctx.app.oneshot(request).await.expect("request failed");
 
     assert_eq!(response.status(), StatusCode::OK);
 
@@ -468,10 +450,7 @@ async fn plan_creation_succeeds_without_revert_header() {
     .fetch_one(&ctx.pool)
     .await
     .expect("Failed to count audit logs");
-    assert_eq!(
-        audit_count, 1,
-        "Audit log should be persisted on success"
-    );
+    assert_eq!(audit_count, 1, "Audit log should be persisted on success");
 
     // plan_logs should be persisted
     let plan_log_count: i64 = sqlx::query_scalar(
@@ -481,8 +460,5 @@ async fn plan_creation_succeeds_without_revert_header() {
     .fetch_one(&ctx.pool)
     .await
     .expect("Failed to count plan_logs");
-    assert_eq!(
-        plan_log_count, 1,
-        "Plan log should be persisted on success"
-    );
+    assert_eq!(plan_log_count, 1, "Plan log should be persisted on success");
 }
