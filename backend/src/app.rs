@@ -45,6 +45,7 @@ pub async fn create_app(db: PgPool, config: Config) -> Result<Router, ApiError> 
             "/api/auth/nonce/:wallet_address",
             get(crate::auth::generate_nonce),
         )
+        .route("/auth/web3/nonce/:wallet", get(crate::auth::generate_nonce))
         .route("/api/auth/wallet-login", post(crate::auth::wallet_login))
         .layer(
             ServiceBuilder::new()
@@ -280,6 +281,8 @@ async fn cancel_plan(
     Path(plan_id): Path<Uuid>,
     AuthenticatedUser(user): AuthenticatedUser,
 ) -> Result<Json<Value>, ApiError> {
+    // Pass only the pool (&state.db) as the service now handles
+    // its own internal transaction orchestration.
     let plan = PlanService::cancel_plan(&state.db, plan_id, user.user_id).await?;
 
     Ok(Json(json!({
