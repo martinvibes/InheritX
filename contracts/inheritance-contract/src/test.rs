@@ -7500,7 +7500,7 @@ fn test_realized_yield_rate_reflects_actual_harvests() {
     client.harvest_yield(&owner, &plan_id);
 
     let realized = client.realized_yield_rate_bps(&plan_id);
-    assert!((495..=505).contains(&realized), "got {}", realized);
+    assert!((495..=505).contains(&realized), "got {realized}");
 }
 
 #[test]

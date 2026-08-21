@@ -632,7 +632,7 @@ mod tests {
     fn compound_amount_beats_simple_interest() {
         // 10% compounded over 10 periods > 10% simple over 10 periods.
         let compounded = compound_amount(1_000_000, 1_000, 10).unwrap();
-        assert!(compounded > 2_000_000, "got {}", compounded);
+        assert!(compounded > 2_000_000, "got {compounded}");
         // (1.1)^10 ≈ 2.5937
         assert_eq!(compounded, 2_593_742);
     }
@@ -688,8 +688,8 @@ mod tests {
     fn projection_over_a_year_approximates_nominal_rate() {
         // 5% compounded daily lands slightly above 5% simple.
         let projected = project_daily_compound(1_000_000, 500, 365).unwrap();
-        assert!(projected > 1_050_000, "got {}", projected);
-        assert!(projected < 1_052_000, "got {}", projected);
+        assert!(projected > 1_050_000, "got {projected}");
+        assert!(projected < 1_052_000, "got {projected}");
     }
 
     #[test]
@@ -716,7 +716,7 @@ mod tests {
     #[test]
     fn effective_apy_of_five_percent_is_about_five_point_one() {
         let apy = effective_apy_bps(500).unwrap();
-        assert!((512..=513).contains(&apy), "got {}", apy);
+        assert!((512..=513).contains(&apy), "got {apy}");
     }
 
     // ─── Fee splitting ───────────────────────────
@@ -729,11 +729,7 @@ mod tests {
                 assert_eq!(
                     net + fee,
                     amount,
-                    "amount {} at {}bps split to {}+{}",
-                    amount,
-                    fee_bps,
-                    net,
-                    fee
+                    "amount {amount} at {fee_bps}bps split to {net}+{fee}"
                 );
             }
         }
